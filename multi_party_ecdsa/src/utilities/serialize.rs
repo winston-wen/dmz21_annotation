@@ -385,7 +385,7 @@ fn test_box() {
 fn test_gmp() {
     let a = CLGroup::new_1827();
     println!("a = {:?}", a);
-    let mut c = a.gq;
+    let mut c = a.generator;
     c.pow(Mpz::from_str_radix("123456", 10).unwrap());
     println!("c = {:?}", c);
 }

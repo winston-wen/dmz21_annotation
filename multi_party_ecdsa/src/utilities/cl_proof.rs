@@ -59,11 +59,11 @@ impl CLProof {
         let r1_mpz = bigint_to_mpz(&r1);
         let r2_fe: FE = FE::random();
         let r2 = into_mpz(&r2_fe);
-        let fr2 = expo_f(&q(), &group.gq.discriminant(), &r2);
+        let fr2 = expo_f(&q(), &group.generator.discriminant(), &r2);
         let mut pkr1 = statement.cl_pub_key.0.clone();
         pkr1.pow(r1_mpz.clone());
         let t2 = fr2 * pkr1;
-        let mut t1 = group.gq.clone();
+        let mut t1 = group.generator.clone();
         t1.pow(r1_mpz.clone());
         let k = Self::challenge(
             &statement.cl_pub_key,
@@ -135,7 +135,7 @@ impl CLProof {
         let mut c1k = statement.cipher.c1;
         c1k.pow(bigint_to_mpz(&k));
         let t1c1k = self.t1.clone() * c1k;
-        let mut gqu1 = group.gq.clone();
+        let mut gqu1 = group.generator.clone();
         gqu1.pow(self.u1.clone());
         if t1c1k != gqu1 {
             flag = false;
@@ -143,7 +143,7 @@ impl CLProof {
 
         let mut pku1 = statement.cl_pub_key.0;
         pku1.pow(self.u1.clone());
-        let fu2 = expo_f(&q(), &group.gq.discriminant(), &self.u2);
+        let fu2 = expo_f(&q(), &group.generator.discriminant(), &self.u2);
         let mut c2k = statement.cipher.c2;
         c2k.pow(bigint_to_mpz(&k));
         let t2c2k = self.t2.clone() * c2k;

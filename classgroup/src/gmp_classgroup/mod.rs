@@ -257,6 +257,8 @@ impl GmpClassGroup {
         self.inner_normalize(ctx);
     }
 
+    // 出处: [CohenCourse1993, Algorithm 5.4.9] NUCOMP算法, 计算两个二次型的复合.
+    // 原理: [CohenCourse1993, Definition 5.4.6, Section 5.2] 二次型的复合就是理想的乘.
     fn inner_square_impl(&mut self, ctx: &mut Ctx) {
         self.assert_valid();
         ctx.congruence_context.solve_linear_congruence(
@@ -424,6 +426,8 @@ impl ClassGroup for GmpClassGroup {
         Self::from_ab_discriminant(a, b, discriminant)
     }
 
+    // 根据 [CL15, Appendix B.2], 理想 $$(a, b)=a\Z+\frac{-b+\sqrt{\Delta}}{2}\Z$$,
+    // 该理想对应二次型 $$(a, b, c)$$, 满足 $$\Delta=b^2-4ac$$.
     fn from_ab_discriminant(a: Self::BigNum, b: Self::BigNum, discriminant: Self::BigNum) -> Self {
         let mut four_a: Self::BigNum = 4u64.into();
         four_a *= &a;

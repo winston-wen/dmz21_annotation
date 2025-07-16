@@ -166,7 +166,7 @@ impl KeyGenPhase {
     ) -> Result<(), anyhow::Error> {
         let mut h_ret = h_caret.0.clone();
         h_ret.pow(q());
-        if h_ret != h.0 || *gp != GROUP_UPDATE_1827.gq {
+        if h_ret != h.0 || *gp != GROUP_UPDATE_1827.generator {
             return Err(anyhow!(
                 "Verify phase one msg failed in keygen phase onetwo"
             ));
@@ -331,7 +331,7 @@ impl KeyGenPhase {
             h_caret: self.h_caret.clone(),
             h: (*self.cl_keypair.get_public_key()).clone(),
             ec_pk: self.ec_keypair.get_public_key().clone(),
-            gp: GROUP_UPDATE_1827.gq.clone(),
+            gp: GROUP_UPDATE_1827.generator.clone(),
             commitment: self.dlog_com.commitment.clone(),
         };
         self.msgs

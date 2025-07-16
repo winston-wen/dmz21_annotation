@@ -102,7 +102,7 @@ impl PromiseProof {
 
         let A1 = G * &s1;
         let A2 = G * &sm + &P * &s1;
-        let mut a1 = group.gq.clone();
+        let mut a1 = group.generator.clone();
         let mut pkr1 = stat.cl_pub_key.0.clone();
         crossbeam::scope(|thread| {
             thread.spawn(|_| {
@@ -114,7 +114,7 @@ impl PromiseProof {
         })
         .unwrap();
 
-        let fr = expo_f(&q(), &group.gq.discriminant(), &into_mpz(&sm));
+        let fr = expo_f(&q(), &group.generator.discriminant(), &into_mpz(&sm));
         let a2 = fr * pkr1;
 
         // Second round: get challenge
@@ -186,7 +186,7 @@ impl PromiseProof {
         let e_fe: FE = Scalar::from(&e);
         let r1_left = G * &self.z1;
         let r1_right = &self.A1 + &(C1 * &e_fe);
-        let mut r2_left = group.gq.clone();
+        let mut r2_left = group.generator.clone();
         let mut c1k = c1.clone();
         let mut pkz2 = cl_pub_key.0.clone();
         let mut c2k = c2.clone();
@@ -206,7 +206,7 @@ impl PromiseProof {
         let r2_right = self.a1.clone() * c1k;
         let m_ec_left = G * &self.zm + P * &self.z1;
         let m_ec_right = &self.A2 + &(C2 * &e_fe);
-        let fz3 = expo_f(&q(), &group.gq.discriminant(), &into_mpz(&self.zm));
+        let fz3 = expo_f(&q(), &group.generator.discriminant(), &into_mpz(&self.zm));
         let m_cl_left = pkz2 * fz3;
         let m_cl_right = self.a2.clone() * c2k;
         if r1_left == r1_right
