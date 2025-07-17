@@ -70,6 +70,8 @@ impl GmpClassGroup {
         (self.a, self.b)
     }
 
+    // 出处: [CohenCourse1993, Algorithm 5.4.9] NUCOMP算法, 计算两个二次型的复合.
+    // 原理: [CohenCourse1993, Definition 5.4.6, Section 5.2] 二次型的复合就是理想的乘.
     fn inner_multiply(&mut self, rhs: &Self, ctx: &mut Ctx) {
         self.assert_valid();
         rhs.assert_valid();
