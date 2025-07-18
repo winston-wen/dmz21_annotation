@@ -9,3 +9,4 @@ TODO:
 * 考证 $$\varphi_p^{-1}$$ 是怎么算的.
 * 考证 $$\mathfrak{r}$$ 是怎么构造的 [HJPT98, Sec 3.1].
 * 考证 $$g$$ 的阶数.
+* 清晰地复述出为什么 `discrete_log_f` 是那么做的.
