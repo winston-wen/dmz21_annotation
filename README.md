@@ -2,8 +2,7 @@
 
 DONE:
 * 验证 $$a, b, \Delta_k, \Delta_p$$ 的关系.
-* 考证出group和group update分别对应数学上的 $$
-\left<g\right>$$ 和 $$\left<f\right>$$.
+* 考证出group和group update分别对应数学上的 $$\left<g\right>$$ 和 $$\left<f\right>$$.
 * 考证出 `discrete_log_f` 对应CL15 Prop 1中的 $$L(m)$$.
 
 TODO: 
