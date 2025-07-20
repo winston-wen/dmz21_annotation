@@ -103,7 +103,9 @@ impl CLGroup {
         // 生成元是一个二次型的等价类 $$[(a, b, c)]$$, 满足 $$\Delta = b^2-4ac$$.
         // [CL15, Fig. 2] $$g:=\left[ \varphi_p^{-1}(\mathfrak{r}^2) \right]^p f^k$$,
         // 其中 $$k$$ 是 1 到 p-1 之间的任意整数.
-        // [CL15, Appendix B.4], $$g$$ 的阶约为类数, 类数约为 $$\sqrt{\Delta_K}$$.
+        // [CL15, Appendix B.1] 
+        // $$\varphi_p: I(\mathcal{O}_{\Delta_p}, p)->I(\mathcal{O}_{\Delta_K}, p), \mathfrak{a} \mapsto \mathfrak{a}\mathcal{O}_{\Delta_K}$$.
+        // [CL15, Appendix B.4] $$g$$ 的阶约为类数, 类数约为 $$\sqrt{\Delta_K}$$.
         // 之所以说大约, 是因为计算准确的阶数首先要计算类数, 还要计算质因数分解.
         let generator = ClassGroup::from_ab_discriminant(a, b, discriminant);
 
