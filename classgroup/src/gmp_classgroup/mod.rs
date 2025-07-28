@@ -72,11 +72,12 @@ impl GmpClassGroup {
 
     // 出处: [CohenCourse1993, Algorithm 5.4.9] NUCOMP算法, 计算两个二次型的复合.
     // 原理: [CohenCourse1993, Definition 5.4.6, Section 5.2] 二次型的复合就是理想的乘.
+    // TODO: 看起来不像NUCOMP, 因为里面一个if-else都没有.
     fn inner_multiply(&mut self, rhs: &Self, ctx: &mut Ctx) {
         self.assert_valid();
         rhs.assert_valid();
 
-        // g = (b1 + b2) / 2
+        // g := (b1 + b2) / 2
         ffi::mpz_add(&mut ctx.congruence_context.g, &self.b, &rhs.b);
         ffi::mpz_fdiv_q_ui_self(&mut ctx.congruence_context.g, 2);
 
@@ -87,7 +88,7 @@ impl GmpClassGroup {
         debug_assert!(&ctx.h + &ctx.congruence_context.g == rhs.b);
         debug_assert!(&ctx.congruence_context.g - &ctx.h == self.b);
 
-        // w = gcd(a1, a2, g)
+        // w := gcd(a1, a2, g)
         ffi::three_gcd(&mut ctx.w, &self.a, &rhs.a, &ctx.congruence_context.g);
 
         // j = w
@@ -102,25 +103,30 @@ impl GmpClassGroup {
         // u = g/w
         ffi::mpz_fdiv_q(&mut ctx.u, &ctx.congruence_context.g, &ctx.w);
 
-        // a = t*u
+        // a = t*u = a2*g/w^2
         ffi::mpz_mul(&mut ctx.a, &ctx.t, &ctx.u);
 
-        // b = h*u - s*c1
+        // b = h*u + s*c1 = (g*h+a1*c1)/w
         ffi::mpz_mul(&mut ctx.b, &ctx.h, &ctx.u);
         ffi::mpz_mul(&mut ctx.m, &ctx.s, &self.c);
         ctx.b += &ctx.m;
 
-        // m = s*t
-        ffi::mpz_mul(&mut ctx.m, &ctx.s, &ctx.t);
+        // m = s*t = a1*a2 / w^2
+        ffi::mpz_mul(&mut ctx.m, &ctx.s, &ctx.t); 
+
+        // 求解 mu 使得 a*mu = b (mod m)
         ctx.congruence_context.solve_linear_congruence(
             &mut ctx.mu,
-            Some(&mut ctx.v),
+            // v = m / gcd(a, m)
+            //   = (a1*a2 / w^2) / gcd(a2*g/w^2, a1*a2/w^2)
+            //   = a1 / gcd(a1, g)
+            Some(&mut ctx.v), 
             &ctx.a,
             &ctx.b,
             &ctx.m,
         );
 
-        // a = t*v
+        // a = t*v = a1*a2 / (gcd(a1,a2,g) * gcd(a1, g))
         ffi::mpz_mul(&mut ctx.a, &ctx.t, &ctx.v);
 
         // b = h - t * mu
@@ -227,7 +233,7 @@ impl GmpClassGroup {
             self.a >= self.c
         } else {
             self.a > self.c
-        } {
+        } { // 这个循环条件是一个if表达式. 太抽象了, , ,
             debug_assert!(!self.c.is_zero());
             ffi::mpz_add(&mut ctx.s, &self.c, &self.b);
             ffi::mpz_add(&mut ctx.x, &self.c, &self.c);
@@ -259,7 +265,7 @@ impl GmpClassGroup {
         self.inner_normalize(ctx);
     }
 
-    // 出处: [CohenCourse1993, Algorithm 5.4.9] NUCOMP算法, 计算两个二次型的复合.
+    // 出处: [CohenCourse1993, Algorithm 5.4.8] NUDUPL算法, 计算二次型的自复合.
     // 原理: [CohenCourse1993, Definition 5.4.6, Section 5.2] 二次型的复合就是理想的乘.
     fn inner_square_impl(&mut self, ctx: &mut Ctx) {
         self.assert_valid();

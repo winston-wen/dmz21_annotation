@@ -170,6 +170,7 @@ impl CLGroup {
         // [CL15, Fig. 1] $$h=g^x, c_1=g^r, c_2=f^mh^r$$.
         let ct = Ciphertext {
             c1: r_big.0,
+            // `mul` -> `mul_assign` -> `inner_multiply`.
             c2: h_exp_r * exp_f,
         };
         (ct, r)

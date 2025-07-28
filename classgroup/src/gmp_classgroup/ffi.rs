@@ -106,8 +106,8 @@ pub fn mpz_powm(rop: &mut Mpz, base: &Mpz, exponent: &Mpz, modulus: &Mpz) {
 }
 
 #[inline]
-pub fn mpz_tdiv_r(r: &mut Mpz, n: &Mpz, d: &Mpz) {
-    unsafe { __gmpz_tdiv_r(r, n, d) }
+pub fn mpz_tdiv_r(rem: &mut Mpz, num: &Mpz, den: &Mpz) {
+    unsafe { __gmpz_tdiv_r(rem, num, den) }
 }
 
 /// Sets `g` to the GCD of `a` and `b`.
@@ -128,8 +128,9 @@ pub fn mpz_double(rop: &mut Mpz) {
 }
 
 #[inline]
-pub fn mpz_fdiv_qr(q: &mut Mpz, r: &mut Mpz, b: &Mpz, g: &Mpz) {
-    unsafe { __gmpz_fdiv_qr(q, r, b, g) }
+// 计算 quo, rem 使 num=quo*den+rem. den 向下取整.
+pub fn mpz_fdiv_qr(quo: &mut Mpz, rem: &mut Mpz, num: &Mpz, den: &Mpz) {
+    unsafe { __gmpz_fdiv_qr(quo, rem, num, den) }
 }
 
 #[inline]
@@ -197,7 +198,7 @@ pub fn mpz_mul_2exp(rop: &mut Mpz, op1: &Mpz, op2: mp_bitcnt_t) {
     unsafe { __gmpz_mul_2exp(rop as *mut _ as *mut Mpz, op1, op2) }
 }
 
-/// Divide `n` by `d`.  Round towards -∞ and place the result in `q`.
+/// 计算 n 除以 d. 商向下取整, 存入参数 q.
 #[inline]
 pub fn mpz_fdiv_q(q: &mut Mpz, n: &Mpz, d: &Mpz) {
     if mpz_is_negative(n) == mpz_is_negative(d) {

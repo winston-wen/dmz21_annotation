@@ -57,27 +57,33 @@ impl CongruenceContext {
     /// Panics if the congruence could not be solved.
     pub fn solve_linear_congruence(
         &mut self,
-        mu: &mut Mpz,
+        x: &mut Mpz,
         v: Option<&mut Mpz>,
         a: &Mpz,
         b: &Mpz,
         m: &Mpz,
     ) {
-        ffi::mpz_gcdext(&mut self.g, &mut self.d, mu, a, m);
+        // 求解 $$d, x'$$ 使得 $$da+x'm = g = \gcd(a, m)$$.
+        ffi::mpz_gcdext(&mut self.g, &mut self.d, x, a, m);
         if cfg!(test) {
             println!(
                 "g = {}, d = {}, e = {}, a = {}, m = {}",
-                self.g, self.d, mu, a, m
+                self.g, self.d, x, a, m
             );
         }
-        if cfg!(debug_assertions) {
+        // $$ax \equiv b \pmod m$$ 等价于方程 $$ax + m(-k) = b$$ 有整数解 (x, k).
+        // 后者是丢番图方程, 其有整数解的充要条件是 $$\gcd(a, m) \mid b$$.
+        // 若有整数解, 则令 $$q=b / \gcd(a,m)$$
+        if cfg!(debug_assertions) {  
             ffi::mpz_fdiv_qr(&mut self.q, &mut self.r, b, &self.g);
             debug_assert!(self.r.is_zero(), "Could not solve the congruence ― did you pass a non-prime or a positive number to the command line tool?!");
         } else {
             ffi::mpz_divexact(&mut self.q, b, &self.g)
         }
+        // $$x = bd / \gcd(a,m) \pmod m$$
         ffi::mpz_mul(&mut self.r, &self.q, &self.d);
-        ffi::mpz_tdiv_r(mu, &self.r, m);
+        ffi::mpz_tdiv_r(x, &self.r, m);
+        // $$v = m / \gcd(a, m)$$
         if let Some(v) = v {
             if cfg!(debug_assertions) {
                 ffi::mpz_fdiv_qr(v, &mut self.r, &m, &self.g);
