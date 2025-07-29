@@ -25,6 +25,7 @@ use std::{
 };
 mod congruence;
 pub(super) mod ffi;
+mod inner_multiply2;
 
 #[derive(PartialEq, PartialOrd, Eq, Ord, Hash, Debug, Clone, Deserialize, Serialize)]
 pub struct GmpClassGroup {
@@ -77,11 +78,11 @@ impl GmpClassGroup {
         self.assert_valid();
         rhs.assert_valid();
 
-        // g := (b1 + b2) / 2
+        // $$g = (b_1 + b_2) / 2$$
         ffi::mpz_add(&mut ctx.congruence_context.g, &self.b, &rhs.b);
         ffi::mpz_fdiv_q_ui_self(&mut ctx.congruence_context.g, 2);
 
-        // h = (b2 - b1) / 2
+        // $$h = (b_2 - b_1) / 2$$
         ffi::mpz_sub(&mut ctx.h, &rhs.b, &self.b);
         ffi::mpz_fdiv_q_ui_self(&mut ctx.h, 2);
 
@@ -100,6 +101,10 @@ impl GmpClassGroup {
         // t = a2/w
         ffi::mpz_fdiv_q(&mut ctx.t, &rhs.a, &ctx.w);
 
+        // 至此已经可以计算 $$A = st = a^1a^2/w^2$$.
+        // 对照一下[Cohen1993, Lemma 5.4.5], 发现 $$A$$ 少了系数 $$d_0$$.
+        // 据此推测, 该函数假设输入中的至少一个二次型是 primitive (系数互质) 的.
+
         // u = g/w
         ffi::mpz_fdiv_q(&mut ctx.u, &ctx.congruence_context.g, &ctx.w);
 
@@ -114,7 +119,7 @@ impl GmpClassGroup {
         // m = s*t = a1*a2 / w^2
         ffi::mpz_mul(&mut ctx.m, &ctx.s, &ctx.t); 
 
-        // 求解 mu 使得 a*mu = b (mod m)
+        // 求解 mu 使得 t*u*mu = h*u + s*c1 (mod s*t)
         ctx.congruence_context.solve_linear_congruence(
             &mut ctx.mu,
             // v = m / gcd(a, m)
@@ -132,10 +137,11 @@ impl GmpClassGroup {
         // b = h - t * mu
         ffi::mpz_mul(&mut ctx.m, &ctx.t, &ctx.mu);
         ffi::mpz_sub(&mut ctx.b, &ctx.h, &ctx.m);
-
-        // m = s
+ 
+        // m = s = a1 / w
         ctx.m.set(&ctx.s);
 
+        // 求解 lambda 使得 t*v*lambda = h - t * mu (mod s)
         ctx.congruence_context.solve_linear_congruence(
             &mut ctx.lambda,
             Some(&mut ctx.sigma),
@@ -163,17 +169,17 @@ impl GmpClassGroup {
         ffi::mpz_mul(&mut ctx.a, &ctx.s, &ctx.t);
         ffi::mpz_fdiv_q(&mut ctx.lambda, &ctx.m, &ctx.a);
 
-        // A = s*t - r*u
+        // A = s*t
         ffi::mpz_mul(&mut self.a, &ctx.s, &ctx.t);
 
-        // B = ju + mr - (kt + ls)
+        // B = w*u + k*t - l*s
         ffi::mpz_mul(&mut self.b, &ctx.j, &ctx.u);
         ffi::mpz_mul(&mut ctx.a, &ctx.k, &ctx.t);
         self.b -= &ctx.a;
         ffi::mpz_mul(&mut ctx.a, &ctx.l, &ctx.s);
         self.b -= &ctx.a;
 
-        // C = kl - jm
+        // C = k*l - w*m
         ffi::mpz_mul(&mut self.c, &ctx.k, &ctx.l);
         ffi::mpz_mul(&mut ctx.a, &ctx.j, &ctx.lambda);
         self.c -= &ctx.a;
