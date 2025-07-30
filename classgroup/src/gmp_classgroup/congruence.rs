@@ -48,7 +48,10 @@ impl Default for CongruenceContext {
 }
 
 impl CongruenceContext {
-    /// Solves `a*x = b (mod m)`, storing `x` in `mu`
+    /// 求解 `a*x == b (mod m)`. 实际上,
+    /// 
+    /// * `x = b*y0 / gcd(a,m) % m`, 其中, `y0*a + y1*m == gcd(a,m)`.
+    /// * `v = m / gcd(a,m)`.
     ///
     /// This function may clobber any or all of `self`’s member variables.
     ///
@@ -80,7 +83,7 @@ impl CongruenceContext {
         } else {
             ffi::mpz_divexact(&mut self.q, b, &self.g)
         }
-        // $$x = bd / \gcd(a,m) \pmod m$$
+        // $$x = bd / \gcd(a,m) \bmod m$$
         ffi::mpz_mul(&mut self.r, &self.q, &self.d);
         ffi::mpz_tdiv_r(x, &self.r, m);
         // $$v = m / \gcd(a, m)$$
