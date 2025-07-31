@@ -48,10 +48,9 @@ impl Default for CongruenceContext {
 }
 
 impl CongruenceContext {
-    /// 求解 `a*x == b (mod m)`. 实际上,
-    /// 
-    /// * `x = b*y0 / gcd(a,m) % m`, 其中, `y0*a + y1*m == gcd(a,m)`.
-    /// * `v = m / gcd(a,m)`.
+    /// 求解 `a*x == b (mod m)`.
+    /// * 一个特解为 `x = b*y0 / gcd(a,m)`, 其中, `y0*a + y1*m == gcd(a,m)`.
+    /// * 通解的周期为 `v = m / gcd(a,m)`.
     ///
     /// This function may clobber any or all of `self`’s member variables.
     ///
