@@ -268,8 +268,6 @@ impl GmpClassGroup {
         self.inner_normalize(ctx);
     }
 
-    // 出处: [CohenCourse1993, Algorithm 5.4.8] NUDUPL算法, 计算二次型的自复合.
-    // 原理: [CohenCourse1993, Definition 5.4.6, Section 5.2] 二次型的复合就是理想的乘.
     fn inner_square_impl(&mut self, ctx: &mut Ctx) {
         self.assert_valid();
         ctx.congruence_context.solve_linear_congruence(
